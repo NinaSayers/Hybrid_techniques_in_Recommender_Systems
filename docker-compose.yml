@@ -1,0 +1,25 @@
+services:
+  sri_database:
+    container_name: sri_database
+    image: postgres:15.7
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - sri_database_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./persistence/customer_details.csv:/docker-entrypoint-initdb.d/customer_details.csv
+      - ./persistence/sales_details.csv:/docker-entrypoint-initdb.d/sales_details.csv
+      - ./persistence/product_details.csv:/docker-entrypoint-initdb.d/product_details.csv
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  sri_database_data:
+    driver: local
