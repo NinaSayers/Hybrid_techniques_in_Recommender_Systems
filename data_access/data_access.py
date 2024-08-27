@@ -33,7 +33,7 @@ class DataAccess:
             result.append(res.get_data())
         
         elapsed_time = time.time() - start_time
-        if elapsed_time > 2:
+        if elapsed_time > 4:
             self.logger.warn(f'Loading resources took too long: {elapsed_time:.2f} seconds.')
         else:
             self.logger.info(f'Resources loaded successfully in {elapsed_time:.2f} seconds.')
