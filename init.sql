@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS products (
     product_description TEXT
 );
 
-CREATE TABLE IF NOT EXISTS sales (
+CREATE TABLE IF NOT EXISTS interactions (
     user_id INTEGER,
     product_id TEXT,
     interaction_type TEXT,
@@ -72,7 +72,7 @@ FROM '/docker-entrypoint-initdb.d/product_details.csv'
 DELIMITER ','
 CSV HEADER;
 
-COPY sales (user_id, product_id, interaction_type, time_stamp)
-FROM '/docker-entrypoint-initdb.d/sales_details.csv'
+COPY interactions (user_id, product_id, interaction_type, time_stamp)
+FROM '/docker-entrypoint-initdb.d/interactions_details.csv'
 DELIMITER ','
 CSV HEADER;

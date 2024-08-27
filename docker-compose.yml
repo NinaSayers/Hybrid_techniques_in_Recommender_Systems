@@ -12,7 +12,7 @@ services:
       - sri_database_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./persistence/customer_details.csv:/docker-entrypoint-initdb.d/customer_details.csv
-      - ./persistence/sales_details.csv:/docker-entrypoint-initdb.d/sales_details.csv
+      - ./persistence/interactions_details.csv:/docker-entrypoint-initdb.d/interactions_details.csv
       - ./persistence/product_details.csv:/docker-entrypoint-initdb.d/product_details.csv
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
