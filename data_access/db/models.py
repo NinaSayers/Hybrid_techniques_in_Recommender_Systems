@@ -61,6 +61,10 @@ class Product(Base):
 
     interactions = relationship('Interaction', back_populates='product')
 
+    def getProductDescribed(self): 
+        return f"{self.category} {self.brand_name} {self.product_name} {self.product_specification}"
+
+
 class Interaction(Base):
     __tablename__ = 'interactions'
     user_id = Column(Integer, ForeignKey('customers.customer_id'), primary_key=True)

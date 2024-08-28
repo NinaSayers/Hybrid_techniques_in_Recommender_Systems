@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from .models import Base
-from config import DATABASE_URL
+from data_access.config import DATABASE_URL
 
 engine = create_engine(DATABASE_URL)
 
