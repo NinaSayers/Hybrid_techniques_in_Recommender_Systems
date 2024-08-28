@@ -52,3 +52,8 @@ class InteractionRepository(BaseRepository):
             Interaction.user_id == user_id,
             Interaction.product_id == product_id
         ).first()
+    
+    def get_interactions_by_user(self, user_id: int) -> Optional[Interaction]:
+        return self.session.query(Interaction).filter(
+            Interaction.user_id == user_id
+        ).all()
