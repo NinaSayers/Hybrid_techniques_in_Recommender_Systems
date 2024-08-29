@@ -12,13 +12,4 @@ class Logger:
     
     def warn(self, log): 
         current_time = datetime.now().strftime('%H:%M:%S')
-        print(f'[WARN] {current_time}: {log}')
-
-
-
-     
-
-
-        
-
-            
+        print(f'[WARN] {current_time}: {log}')       
