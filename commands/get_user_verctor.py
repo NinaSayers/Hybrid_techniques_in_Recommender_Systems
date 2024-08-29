@@ -57,6 +57,7 @@ class GetUserVectorCommand:
         session = SessionLocal()
         try:
             product_repository = ProductRepository(session)
+            interaction_repository = InteractionRepository(session)
             
             # Get all products
             products = product_repository.get_all()
@@ -75,9 +76,17 @@ class GetUserVectorCommand:
             # Calculate cosine similarity between the user vector and all product vectors
             cosine_similarities = cosine_similarity([user_vector], tfidf_matrix).flatten()
 
-            # Get the top N most similar products
-            top_indices = cosine_similarities.argsort()[-top_n:][::-1]
-            recommended_products = [(products[i].unique_id, cosine_similarities[i]) for i in top_indices]
+            # Fetch all products the user has interacted with
+            user_interactions = interaction_repository.get_interactions_by_user(user_id)
+            interacted_product_ids = {interaction.product_id for interaction in user_interactions}
+
+            # Filter out products the user has already interacted with
+            recommended_products = []
+            for i in cosine_similarities.argsort()[::-1]:
+                if products[i].unique_id not in interacted_product_ids:
+                    recommended_products.append((products[i].unique_id, cosine_similarities[i]))
+                if len(recommended_products) >= top_n:
+                    break
 
             return recommended_products
         except Exception as e:
