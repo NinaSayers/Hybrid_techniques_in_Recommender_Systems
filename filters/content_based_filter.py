@@ -1,39 +1,92 @@
-from typing import List, Tuple
-from filters.filter_base import FilterBase
-from models.recommendation_model import RecommendationModel
-from services.logger import Logger
+from abc import ABC
+from typing import List
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+from data_access.db.db import SessionLocal
+from data_access.db.repositories import InteractionRepository
+from filters.filter_base import FilterBase
+from models.context_model import Context
+from models.filter_result_model import FilterResultModel
+from models.recommendation_model import RecommendationModel
 
-
-class ContentBasedFiltering(FilterBase):
+class ContentBaseFilter(FilterBase):
     def __init__(self):
-        pass
-    def apply_filter(self, products: List) -> List[RecommendationModel]:
-        if not products:
-            self.logger.warning("No products provided.")
+        super().__init__()
+        self.tfidf_vectorizer = TfidfVectorizer(stop_words='english')
+
+    def apply_filter(self, context: Context) -> FilterResultModel:
+        session = SessionLocal()
+        interactions_repository = InteractionRepository(session)
+        self.logger.info("Applying content based filters")
+        try:
+            product_descriptions = [product.getProductDescribed() for product in context.products]
+
+            tfidf_matrix = self.tfidf_vectorizer.fit_transform(product_descriptions)
+
+            user_vector = self.get_user_vector(context.userId, context.products, tfidf_matrix)
+            if user_vector is None:
+                self.logger.info("No valid user vector found.")
+                return []
+
+            cosine_similarities = cosine_similarity([user_vector], tfidf_matrix).flatten()
+
+            interacted_product_ids = {interaction.product_id for interaction in interactions_repository.get_interactions_by_user(context.userId)}
+            recommendations = []
+            for i in cosine_similarities.argsort()[::-1]:
+                if context.products[i].unique_id not in interacted_product_ids:
+                    recommendation = RecommendationModel(
+                        product_id=context.products[i].unique_id,
+                        similarity_score=cosine_similarities[i]
+                    )
+                    recommendations.append(recommendation)
+                if len(recommendations) >= context.limit: 
+                    break
+
+            # Create the FilterResultModel with the list of recommendations
+            filter_result = FilterResultModel(
+                user_id=context.userId,
+                recommendations=recommendations
+            )
+
+            return filter_result
+
+        except Exception as e:
+            self.logger.error(f"An error occurred while applying the Content Based filter: {str(e)}")
             return []
-        
-        product_descriptions = [product.getProductDescribed() for product in products]
-        product_ids = [product.unique_id for product in products]
+        finally:
+            session.close()
 
-        tfidf_vectorizer = TfidfVectorizer(stop_words='english')
-        tfidf_matrix = tfidf_vectorizer.fit_transform(product_descriptions)
+    def get_user_vector(self, user_id, products, tfidf_matrix):
+        session = SessionLocal()
+        interactions_repository = InteractionRepository(session)
+        try:
+            interaction_weights = []
+            product_vectors = []
+            user_interactions = interactions_repository.get_interactions_by_user(user_id)
+            for interaction in user_interactions:
+                product = next((p for p in products if p.unique_id == interaction.product_id), None)
+                if product:
+                    index = products.index(product)
+                    product_vectors.append(tfidf_matrix[index].toarray().flatten())
+                    switcher = {
+                        "view": 2,
+                        "like": 3,
+                        "purchase": 5
+                    }
+                    weight = switcher.get(interaction.interaction_type, 1)
+                    interaction_weights.append(weight)
 
-        self.logger.info("Calculating cosine similarity among all the vectors")
-        cosine_similarities = cosine_similarity(tfidf_matrix, tfidf_matrix)
+            if not product_vectors:
+                self.logger.warn("No user interactions with the products were found.")
+                return None
 
-        recommendations = []
-        self.logger.info("Getting recommendations")
+            user_vector = np.average(product_vectors, axis=0, weights=interaction_weights)
+            return user_vector
 
-        for idx, product in enumerate(products):
-            similar_indices = cosine_similarities[idx].argsort()[::-1][1:]
-            similar_items = [
-                (product_ids[similar_idx], cosine_similarities[idx][similar_idx])
-                for similar_idx in similar_indices
-            ]
-            recommendations.append(RecommendationModel(product.unique_id, similar_items))
+        except Exception as e:
+            self.logger.error(f"An error occurred when trying to get the user vector: {str(e)}")
+            return None
 
-        return recommendations
-
-
+        finally:
+            session.close()

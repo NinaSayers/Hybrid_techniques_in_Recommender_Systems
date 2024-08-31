@@ -1,8 +1,7 @@
 from commands.get_user_verctor import GetUserVectorCommand
-from commands.test import TfidfFilter
 from data_access.db.db import SessionLocal
 from data_access.db.repositories import InteractionRepository, ProductRepository
-from filters.content_based_filter import ContentBasedFiltering
+from filters.content_based_filter import ContentBaseFilter
 from models.context_model import Context
 
 # command = GetUserVectorCommand()
@@ -12,9 +11,9 @@ repo = ProductRepository(session)
 intrepo = InteractionRepository(session)
 all_products =  repo.get_all()
 
-filter = TfidfFilter()
+filter = ContentBaseFilter()
 
-ctx = Context(all_products,'1')
+ctx = Context(all_products,'1',3)
 
 result = filter.apply_filter(ctx)
 prId = intrepo.get_interactions_by_user('1')[0].product_id
