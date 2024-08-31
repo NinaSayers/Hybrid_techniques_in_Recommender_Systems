@@ -2,6 +2,9 @@ from typing import List
 from filters.filter_base import FilterBase, Recommendation
 
 class CollaborativeFiltering(FilterBase):
+    def __init__(self):
+        pass
+
     def apply_filter(self, products: List) -> List[Recommendation]:
         # Implementar lógica específica de filtrado colaborativo aquí
         # Esto es solo un esqueleto, la implementación real puede variar

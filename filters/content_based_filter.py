@@ -1,12 +1,15 @@
 from typing import List, Tuple
-from filters.filter_base import FilterBase, FilterResult, Recommendation
+from filters.filter_base import FilterBase
+from models.recommendation_model import RecommendationModel
 from services.logger import Logger
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
 class ContentBasedFiltering(FilterBase):
-    def apply_filter(self, products: List) -> List[Recommendation]:
+    def __init__(self):
+        pass
+    def apply_filter(self, products: List) -> List[RecommendationModel]:
         if not products:
             self.logger.warning("No products provided.")
             return []
@@ -29,7 +32,7 @@ class ContentBasedFiltering(FilterBase):
                 (product_ids[similar_idx], cosine_similarities[idx][similar_idx])
                 for similar_idx in similar_indices
             ]
-            recommendations.append(Recommendation(product.unique_id, similar_items))
+            recommendations.append(RecommendationModel(product.unique_id, similar_items))
 
         return recommendations
 
