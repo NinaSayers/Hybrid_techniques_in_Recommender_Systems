@@ -62,7 +62,7 @@ class Product(Base):
     interactions = relationship('Interaction', back_populates='product')
 
     def getProductDescribed(self): 
-        return f"{self.category} {self.brand_name} {self.product_name} {self.product_specification}"
+        return f"{self.product_name}  {self.about_product} {self.category} {self.brand_name} {self.product_specification}"
 
 
 class Interaction(Base):
