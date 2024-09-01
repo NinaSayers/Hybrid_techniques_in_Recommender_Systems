@@ -11,9 +11,11 @@ from models.filter_result_model import FilterResultModel
 from models.recommendation_model import RecommendationModel
 
 class ContentBaseFilter(FilterBase):
-    def __init__(self):
+    def __init__(self, session):
         super().__init__()
+        self.session = session
         self.tfidf_vectorizer = TfidfVectorizer(stop_words='english')
+        self.interactions_repository = InteractionRepository(session)
 
     def apply_filter(self, context: Context) -> Optional[FilterResultModel]:
         """Apply content-based filtering to generate product recommendations."""
@@ -27,36 +29,34 @@ class ContentBaseFilter(FilterBase):
 
         self.logger.info(f"Applying content-based filters to {len(context.products)} products, expecting {context.limit} filtered.")
 
-        with SessionLocal() as session:
-            interactions_repository = InteractionRepository(session)
-            try:
-                product_descriptions = self.get_product_descriptions(context.products)
-                tfidf_matrix = self.tfidf_vectorizer.fit_transform(product_descriptions)
+        try:
+            product_descriptions = self.get_product_descriptions(context.products)
+            tfidf_matrix = self.tfidf_vectorizer.fit_transform(product_descriptions)
 
-                user_vector = self.get_user_vector(context.userId, context.products, tfidf_matrix, interactions_repository)
-                if user_vector is None:
-                    self.logger.warn("No valid user vector found.")
-                    return None
-
-                recommendations = self.get_recommendations(context, tfidf_matrix, user_vector, interactions_repository)
-
-                return FilterResultModel(user_id=context.userId, recommendations=recommendations)
-
-            except Exception as e:
-                self.logger.error(f"An error occurred while applying the Content-Based filter: {str(e)}")
+            user_vector = self.get_user_vector(context.userId, context.products, tfidf_matrix)
+            if user_vector is None:
+                self.logger.warn("No valid user vector found.")
                 return None
+
+            recommendations = self.get_recommendations(context, tfidf_matrix, user_vector)
+
+            return FilterResultModel(user_id=context.userId, recommendations=recommendations)
+
+        except Exception as e:
+            self.logger.error(f"An error occurred while applying the Content-Based filter: {str(e)}")
+            return None
 
     def get_product_descriptions(self, products: List) -> List[str]:
         """Extract descriptions from a list of products."""
         return [product.getProductDescribed() for product in products]
 
-    def get_user_vector(self, user_id: int, products: List, tfidf_matrix: np.ndarray, interactions_repository: InteractionRepository) -> Optional[np.ndarray]:
+    def get_user_vector(self, user_id: int, products: List, tfidf_matrix: np.ndarray) -> Optional[np.ndarray]:
         """Calculate the user's vector based on their interactions with products."""
         try:
             interaction_weights = []
             product_vectors = []
 
-            user_interactions = interactions_repository.get_interactions_by_user(user_id)
+            user_interactions = self.interactions_repository.get_interactions_by_user(user_id)
             for interaction in user_interactions:
                 product = next((p for p in products if p.unique_id == interaction.product_id), None)
                 if product:
@@ -85,13 +85,13 @@ class ContentBaseFilter(FilterBase):
             "purchase": 5
         }.get(interaction_type, 1)
 
-    def get_recommendations(self, context: Context, tfidf_matrix: np.ndarray, user_vector: np.ndarray, interactions_repository: InteractionRepository) -> List[RecommendationModel]:
+    def get_recommendations(self, context: Context, tfidf_matrix: np.ndarray, user_vector: np.ndarray) -> List[RecommendationModel]:
         """Generate a list of recommendations based on cosine similarity."""
         cosine_similarities = cosine_similarity([user_vector], tfidf_matrix).flatten()
 
         interacted_product_ids = {
             interaction.product_id
-            for interaction in interactions_repository.get_interactions_by_user(context.userId)
+            for interaction in self.interactions_repository.get_interactions_by_user(context.userId)
         }
 
         recommendations = []
