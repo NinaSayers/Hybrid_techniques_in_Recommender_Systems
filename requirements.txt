@@ -1,0 +1,6 @@
+# Base libraries
+sqlalchemy==2.0.20
+scikit-learn==1.2.2
+numpy==1.23.5
+colorama==0.4.6
+ipython==8.10.0
