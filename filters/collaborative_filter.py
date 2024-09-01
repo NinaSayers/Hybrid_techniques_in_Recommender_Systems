@@ -69,12 +69,11 @@ class CollaborativeFilter(FilterBase):
     def _get_user_index(self, user_id: int, interaction_matrix: List[List[int]]) -> Optional[int]:
         customers = self.customer_repository.get_all()
         for i, customer in enumerate(customers):
-            # print(str(customer.customer_id) + str(i))
             if customer.customer_id == user_id:
                 return i
         return None
 
-    def _calculate_user_similarities(self, user_index: int, interaction_matrix: List[List[int]]) -> List[float]:
+    def _calculate_user_similarities(self, user_index: int, interaction_matrix: List[List[int]]) -> List[tuple]:
         user_vector = interaction_matrix[user_index]
         similarities = []
 
@@ -95,14 +94,30 @@ class CollaborativeFilter(FilterBase):
             return 0.0
         return dot_product / (magnitude_a * magnitude_b)
 
-    def _generate_recommendations(self, user_index: int, user_similarities: List[float], product_ids: List[str], interaction_matrix: List[List[int]], context: Context) -> List[RecommendationModel]:
+    def _generate_recommendations(self, user_index: int, user_similarities: List[tuple], product_ids: List[str], interaction_matrix: List[List[int]], context: Context) -> List[RecommendationModel]:
         recommendations = []
-        for similar_user_index, _ in user_similarities:
+        recommended_scores = {}
+
+        # Normalizar las similitudes de los usuarios para el rango [0, 1]
+        max_similarity = max(similarity for _, similarity in user_similarities) if user_similarities else 1
+
+        for similar_user_index, similarity in user_similarities:
             for i, interaction in enumerate(interaction_matrix[similar_user_index]):
                 if interaction > 0 and interaction_matrix[user_index][i] == 0:
-                    recommendations.append(
-                        RecommendationModel(product_id=product_ids[i], similarity_score=interaction)
-                    )
-                    if len(recommendations) >= context.limit:
-                        return recommendations
+                    normalized_similarity = similarity / max_similarity
+                    if product_ids[i] in recommended_scores:
+                        recommended_scores[product_ids[i]] += interaction * normalized_similarity
+                    else:
+                        recommended_scores[product_ids[i]] = interaction * normalized_similarity
+
+        # Ordenar recomendaciones por puntaje y limitar el número de recomendaciones
+        sorted_recommendations = sorted(recommended_scores.items(), key=lambda x: x[1], reverse=True)
+        for product_id, score in sorted_recommendations[:context.limit]:
+            # Normalizar el puntaje final para el rango [0, 1]
+            max_score = max(recommended_scores.values(), default=1)
+            normalized_score = score / max_score
+            recommendations.append(
+                RecommendationModel(product_id=product_id, similarity_score=normalized_score)
+            )
+
         return recommendations
