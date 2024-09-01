@@ -36,6 +36,10 @@ class CustomerRepository(BaseRepository):
 
 
 class ProductRepository(BaseRepository):
+    def get_all_paginated(self, page: int = 1, page_size: int = 10) -> List[Product]:
+        offset = (page - 1) * page_size
+        return self.session.query(Product).offset(offset).limit(page_size).all()
+    
     def get_all(self) -> List[Product]:
         return self.session.query(Product).all()
 
