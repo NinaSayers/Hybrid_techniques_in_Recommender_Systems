@@ -1,7 +1,7 @@
 SET datestyle = 'DMY, ISO';
 
 CREATE TABLE IF NOT EXISTS customers (
-    customer_id INTEGER PRIMARY KEY,
+    customer_id SERIAL PRIMARY KEY,  
     age INTEGER,
     gender TEXT,
     item_purchased TEXT,
@@ -76,3 +76,12 @@ COPY interactions (user_id, product_id, interaction_type, time_stamp)
 FROM '/docker-entrypoint-initdb.d/interactions_details.csv'
 DELIMITER ','
 CSV HEADER;
+
+-- Sincronizando la llave autoincremental de la tabla customer 
+DO $$ 
+DECLARE sequence_name text;
+BEGIN
+    sequence_name := (SELECT pg_get_serial_sequence('customers', 'customer_id'));
+
+    EXECUTE format('SELECT setval(%L, (SELECT COALESCE(MAX(customer_id), 0) + 1 FROM customers))', sequence_name);
+END $$;

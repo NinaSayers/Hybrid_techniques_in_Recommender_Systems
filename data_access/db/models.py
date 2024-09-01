@@ -7,7 +7,7 @@ Base = declarative_base()
 
 class Customer(Base):
     __tablename__ = 'customers'
-    customer_id = Column(Integer, primary_key=True)
+    customer_id = Column(Integer, primary_key=True,autoincrement=True)
     age = Column(Integer)
     gender = Column(String)
     item_purchased = Column(Text)
