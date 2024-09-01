@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-
+from datetime import datetime
 from services.logger import Logger
 from .models import Customer, Product, Interaction
 
@@ -57,7 +57,17 @@ class InteractionRepository(BaseRepository):
             Interaction.product_id == product_id
         ).first()
     
-    def get_interactions_by_user(self, user_id: int) -> Optional[Interaction]:
+    def get_interactions_by_user(self, user_id: int) -> List[Interaction]:
         return self.session.query(Interaction).filter(
             Interaction.user_id == user_id
         ).all()
+
+    def create_interaction(self, user_id: int, product_id: str, interaction_type: str, description: Optional[str] = None) -> None:
+        new_interaction = Interaction(
+            user_id=user_id,
+            product_id=product_id,
+            interaction_type=interaction_type,
+            time_stamp=datetime.now(),
+            description=description
+        )
+        self.add(new_interaction)
