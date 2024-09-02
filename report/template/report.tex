@@ -1,5 +1,6 @@
 \documentclass{llncs}
 \usepackage{graphicx}
+\usepackage{url}
 
 \begin{document}
 
@@ -16,13 +17,11 @@ En este trabajo se presenta un sistema de recomendación híbrido que combina t�
 \end{abstract}
 
 \section{Introducción}
-En la era digital, la sobrecarga de información es un desafío constante para los usuarios que buscan productos o contenido relevante en plataformas en línea. Los sistemas de recomendación han surgido como una solución eficaz para este problema, permitiendo la personalización del contenido y mejorando la experiencia del usuario. Estos sistemas son esenciales en aplicaciones como plataformas de streaming, comercio electrónico, redes sociales, y servicios de noticias, donde juegan un papel crucial en la satisfacción del usuario y el éxito comercial.
-
-Este trabajo tiene como objetivo presentar un sistema de recomendación híbrido que combina técnicas de filtrado colaborativo y basado en contenido para mejorar la precisión y la relevancia de las recomendaciones. La propuesta busca superar las limitaciones inherentes a cada enfoque cuando se emplean de manera aislada, y ofrecer un mecanismo robusto para la personalización de contenidos y productos.
+En la era digital, la sobrecarga de información es un desafío constante para los usuarios que buscan productos o contenido relevante en plataformas en línea. Los sistemas de recomendación han surgido como una solución eficaz para este problema, permitiendo la personalización del contenido y mejorando la experiencia del usuario \cite{video}. Este trabajo tiene como objetivo presentar un sistema de recomendación híbrido que combina técnicas de filtrado colaborativo y basado en contenido para mejorar la precisión y la relevancia de las recomendaciones. La propuesta busca superar las limitaciones inherentes a cada enfoque cuando se emplean de manera aislada, y ofrecer un mecanismo robusto para la personalización de contenidos y productos.
 
 El filtrado colaborativo se basa en la premisa de que los usuarios que han mostrado preferencias similares en el pasado tienden a tener gustos similares en el futuro. Sin embargo, este método enfrenta desafíos en situaciones donde hay escasez de datos, como en el caso de nuevos usuarios o productos, conocido como el problema del "cold start". Por su parte, el filtrado basado en contenido se enfoca en las características intrínsecas de los productos, lo que permite hacer recomendaciones sin depender de la historia de interacciones de otros usuarios, pero puede ser limitado en capturar interacciones complejas.
 
-El sistema híbrido propuesto combina estas dos técnicas para aprovechar sus fortalezas y mitigar sus debilidades, proporcionando recomendaciones más robustas y personalizadas.
+El sistema híbrido propuesto combina estas dos técnicas para aprovechar sus fortalezas y mitigar sus debilidades, proporcionando recomendaciones más robustas y personalizadas. El análisis de datos de ventas, como el proporcionado en el dataset de \cite{dataset}, es fundamental para la implementación del sistema.
 
 \section{Funcionamiento de los Filtros Utilizados}
 El sistema de recomendación utiliza dos enfoques principales: filtrado colaborativo y filtrado basado en contenido, cada uno con un proceso específico para evaluar la relevancia de los productos para los usuarios.
@@ -101,38 +100,29 @@ Proporciona servicios adicionales que soportan la funcionalidad del sistema, com
 Para implementar el sistema, siga estos pasos:
 
 \begin{enumerate}
-    \item \textbf{Instalación}: Clona el repositorio e instala las dependencias utilizando \texttt{pip}:
-    \begin{verbatim}
-    pip install -r requirements.txt
-    \end{verbatim}
-    
-    \item \textbf{Infraestructura}: Inicia la base de datos con Docker:
-    \begin{verbatim}
-    docker-compose up
-    \end{verbatim}
-    
-    \item \textbf{Ejecución}: Inicia la aplicación para generar recomendaciones utilizando las interfaces proporcionadas.
+    \item \textbf{Instalación de Dependencias}: Asegúrese de que todas las dependencias necesarias están instaladas.
+    \item \textbf{Configuración de Datos}: Cargue los datos del dataset de ventas en la base de datos.
+    \item \textbf{Inicialización del Sistema}: Configure el sistema y cargue los datos necesarios.
 \end{enumerate}
 
-\subsection{Ejemplos de Uso}
-Algunos ejemplos incluyen:
+\subsection{Uso}
+Para utilizar el sistema de recomendación, realice las siguientes acciones:
 
-\begin{itemize}
-    \item \textbf{Aplicar Filtros}: Utiliza el módulo de filtros para generar recomendaciones basadas en usuarios similares.
-    \item \textbf{Registro de Actividades}: Utiliza \texttt{Logger} para registrar actividades durante el proceso de recomendación.
-\end{itemize}
+\begin{enumerate}
+    \item \textbf{Consulta de Recomendaciones}: Solicite recomendaciones para un usuario específico.
+    \item \textbf{Evaluación de Resultados}: Revise y ajuste las recomendaciones según sea necesario.
+\end{enumerate}
 
 \section{Conclusión}
-El sistema de recomendación híbrido desarrollado en este proyecto demuestra cómo la combinación de filtrado colaborativo y basado en contenido puede mejorar la precisión y relevancia de las recomendaciones. Este enfoque híbrido permite superar limitaciones comunes en los sistemas tradicionales, ofreciendo recomendaciones más personalizadas y efectivas. Además, el sistema muestra mejoras significativas en el manejo del problema del "cold start" y ofrece una solución más robusta para la personalización en diversos contextos.
+El sistema de recomendación híbrido presentado combina las fortalezas del filtrado colaborativo y basado en contenido, ofreciendo un enfoque robusto para la personalización de contenido en plataformas digitales. La integración de estos métodos permite superar las limitaciones individuales y proporcionar recomendaciones más precisas y relevantes, mejorando la experiencia del usuario. La evaluación del sistema demuestra su eficacia en diferentes escenarios y su capacidad para manejar el problema del "cold start".
 
-\section{Imágenes}
-A continuación, se incluye una imagen que ilustra el flujo de trabajo del sistema de recomendación híbrido:
+\section{Referencias}
+\begin{thebibliography}{99}
+\bibitem{dataset}
+Pachauri, Shrey. \textit{Sales Ecommerce}. Kaggle. \url{https://www.kaggle.com/datasets/shreypachauri123/sales-ecomerces}.
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.8\textwidth]{workflow.png}
-\caption{Flujo de trabajo del sistema de recomendación híbrido}
-\label{fig:workflow}
-\end{figure}
+\bibitem{video}
+Google Cloud Team. \textit{How to Build a Recommendation System}. YouTube. \url{https://www.youtube.com/watch?v=F7OTS6qn5Dg&list=PLTjbQZu8nnshv8H5tV0fGh0ECBIXwuHJb}.
+\end{thebibliography}
 
 \end{document}
