@@ -31,7 +31,7 @@ class CollaborativeFilter(FilterBase):
         interaction_matrix = self._build_interaction_matrix(product_ids)
 
         # Calculate user similarities
-        user_index = self._get_user_index(context.userId, interaction_matrix)
+        user_index = self._get_user_index(context.userId)
         if user_index is None:
             self.logger.warn(f"User {context.userId} not found in the interaction matrix.")
             return FilterResultModel(user_id=context.userId, recommendations=[])
@@ -66,7 +66,7 @@ class CollaborativeFilter(FilterBase):
         }
         return weights.get(interaction_type, 0)
 
-    def _get_user_index(self, user_id: int, interaction_matrix: List[List[int]]) -> Optional[int]:
+    def _get_user_index(self, user_id: int) -> Optional[int]:
         customers = self.customer_repository.get_all()
         for i, customer in enumerate(customers):
             if customer.customer_id == user_id:
