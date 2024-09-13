@@ -31,7 +31,7 @@ class FilterPipe:
                 # Check if the filter result is valid
                 if not filter_result or not filter_result.recommendations:
                     self.logger.warn(f"No recommendations from filter: {filter.__class__.__name__}")
-                    return FilterResultModel(user_id=context.userId, recommendations=[])
+                    return FilterResultModel(user_id=context.userId, recommendations=[RecommendationModel(x.unique_id,1) for x in filtered_products])
 
                 # Update the scores for the filtered products
                 for rec in filter_result.recommendations:

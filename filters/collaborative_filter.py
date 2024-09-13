@@ -104,7 +104,12 @@ class CollaborativeFilter(FilterBase):
         for similar_user_index, similarity in user_similarities:
             for i, interaction in enumerate(interaction_matrix[similar_user_index]):
                 if interaction > 0 and interaction_matrix[user_index][i] == 0:
-                    normalized_similarity = similarity / max_similarity
+                    normalized_similarity = 0; 
+                    if max_similarity == 0: 
+                        normalized_similarity = 0 
+                    else :
+                        normalized_similarity = similarity / max_similarity
+                    
                     if product_ids[i] in recommended_scores:
                         recommended_scores[product_ids[i]] += interaction * normalized_similarity
                     else:
@@ -115,7 +120,10 @@ class CollaborativeFilter(FilterBase):
         for product_id, score in sorted_recommendations[:context.limit]:
             # Normalizar el puntaje final para el rango [0, 1]
             max_score = max(recommended_scores.values(), default=1)
-            normalized_score = score / max_score
+            if max_score == 0 : 
+                normalized_score = 0
+            else:     
+                normalized_score = score / max_score
             recommendations.append(
                 RecommendationModel(product_id=product_id, similarity_score=normalized_score)
             )
