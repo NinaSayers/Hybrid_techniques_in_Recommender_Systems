@@ -177,22 +177,28 @@ def show_products(user_id, page=1, page_size=10):
     ])
 
     try:
-        # Crear una barra de búsqueda para el ID del producto
+    # Crear una barra de búsqueda para el ID del producto
         search_id = st.text_input("Search for Product by ID")
 
         if search_id:
             # Buscar un producto específico por ID
             try:
                 product_id = str(search_id)
+                st.write(f"Searching for product with ID: {product_id}")  # Línea de depuración
                 product = product_repository.get_by_id(product_id)
                 
                 if product:
                     # Mostrar detalles del producto específico
-                    st.subheader(product.product_name)
-                    st.image(product.image, width=200)  # Imagen del producto (ajustar tamaño si es necesario)
-                    st.write(product.about_product)
-                    st.write(f"Price: ${product.selling_price}")
-                    st.write(f"Stock: {product.stock}")
+                    st.subheader(product.product_name if product.product_name else "No Name Available")
+                    
+                    if product.image:
+                        st.image(product.image, width=200)  # Imagen del producto (ajustar tamaño si es necesario)
+                    else:
+                        st.image("path/to/placeholder/image.png", width=200)  # Imagen de placeholder
+                    
+                    st.write(product.about_product if product.about_product else "No description available.")
+                    st.write(f"Price: ${product.selling_price if product.selling_price else 'N/A'}")
+                    st.write(f"Stock: {product.stock if product.stock is not None else 'N/A'}")
 
                     # Botones de interacción
                     col1, col2, col3 = st.columns(3)
@@ -225,6 +231,9 @@ def show_products(user_id, page=1, page_size=10):
                     st.write("Product not found.")
             except ValueError:
                 st.write("Please enter a valid ID.")
+            except Exception as e:
+                logger.error(f"An error occurred while fetching the product: {str(e)}")
+                st.error(f"An error occurred: {str(e)}")
         else:
             # Obtener todos los productos si no hay un ID de búsqueda
             products = product_repository.get_all()
@@ -239,17 +248,26 @@ def show_products(user_id, page=1, page_size=10):
 
             st.write(f"Showing product recommendations for user: {user_id}")
             
-            for rec in filtered_products.recommendations:
+            first_10 = filtered_products.recommendations[:10]
+            for rec in first_10:
                 product = product_repository.get_by_id(rec.product_id)
-                
                 # Mostrar información del producto como una tarjeta
                 with st.container():
-                    st.subheader(product.product_name)
-                    st.image(product.image, width=200)  # Imagen del producto (ajustar tamaño si es necesario)
-                    st.write(product.about_product)
-                    st.write(f"Ranking score: ${rec.similarity_score}")
-                    st.write(f"Price: ${product.selling_price}")
-                    st.write(f"Stock: {product.stock}")
+                    st.subheader(product.product_name if product.product_name else "No Name Available")
+                    
+                    if product.image:
+                        try: 
+                            st.image(product.image, width=200)  # Imagen del producto (ajustar tamaño si es necesario)
+                        except: 
+                            st.image("https://tse1.mm.bing.net/th?id=OIP.XXWKhZZeWjrUPx-ZSfP0GAHaDt&pid=Api", width=200)  # Imagen de placeholder
+                    else:
+                        st.image("https://tse1.mm.bing.net/th?id=OIP.XXWKhZZeWjrUPx-ZSfP0GAHaDt&pid=Api", width=200)  # Imagen de placeholder
+                    
+                    st.write(product.about_product if product.about_product else "No description available.")
+                    st.write(f"Product id: {rec.product_id}")
+                    st.write(f"Ranking score: {rec.similarity_score if rec.similarity_score is not None else 'N/A'}")
+                    st.write(f"Price: ${product.selling_price if product.selling_price else 'N/A'}")
+                    st.write(f"Stock: {product.stock if product.stock is not None else 'N/A'}")
 
                     # Botones de acción para cada producto
                     col1, col2, col3 = st.columns(3)
@@ -257,6 +275,7 @@ def show_products(user_id, page=1, page_size=10):
                     with col1:
                         if st.button(f"Buy {product.product_name}", key=f"buy_{product.unique_id}"):
                             # Acción para comprar
+                            logger.info("Buyed")
                             interaction_repository.create_interaction(user_id, product.unique_id, 'purchase', 'User purchased the product')
                             session.commit()
                             st.write(f"Purchased {product.product_name}!")
@@ -264,6 +283,7 @@ def show_products(user_id, page=1, page_size=10):
                     with col2:
                         if st.button(f"Like {product.product_name}", key=f"like_{product.unique_id}"):
                             # Acción para dar like
+                            logger.info("Liked")
                             interaction_repository.create_interaction(user_id, product.unique_id, 'like', 'User liked the product')
                             session.commit()
                             st.write(f"Liked {product.product_name}!")
@@ -271,6 +291,7 @@ def show_products(user_id, page=1, page_size=10):
                     with col3:
                         if st.button(f"Details {product.product_name}", key=f"details_{product.unique_id}"):
                             # Acción para ver más detalles
+                            logger.info("Viwed")
                             interaction_repository.create_interaction(user_id, product.unique_id, 'view', 'User viewed the product')
                             session.commit()
                             st.write(f"More details about {product.product_name}...")

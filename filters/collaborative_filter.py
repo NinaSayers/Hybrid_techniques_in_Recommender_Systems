@@ -21,7 +21,10 @@ class CollaborativeFilter(FilterBase):
         user_interactions = self.interaction_repository.get_interactions_by_user(context.userId)
         if not user_interactions:
             self.logger.warn(f"No interactions found for user {context.userId}.")
-            return FilterResultModel(user_id=context.userId, recommendations=[])
+            # Generar todas las recomendaciones
+            all_recommendations = [RecommendationModel(x.unique_id, 1) for x in context.products]
+            recommendations = all_recommendations[:50]
+            return FilterResultModel(user_id=context.userId, recommendations=recommendations)
 
         # Get all products and generate an interaction matrix
         all_products = self.product_repository.get_all()
@@ -34,7 +37,9 @@ class CollaborativeFilter(FilterBase):
         user_index = self._get_user_index(context.userId)
         if user_index is None:
             self.logger.warn(f"User {context.userId} not found in the interaction matrix.")
-            return FilterResultModel(user_id=context.userId, recommendations=[])
+            all_recommendations = [RecommendationModel(x.unique_id, 1) for x in context.products]
+            recommendations = all_recommendations[:50]
+            return FilterResultModel(user_id=context.userId, recommendations=recommendations)
 
         user_similarities = self._calculate_user_similarities(user_index, interaction_matrix)
 
