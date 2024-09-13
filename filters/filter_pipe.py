@@ -9,20 +9,40 @@ from services.logger import Logger
 
 class FilterPipe:
     def __init__(self, filters: List[FilterBase]):
+        """
+        Initializes the FilterPipe with a list of filters.
+
+        Args:
+            filters (List[FilterBase]): A list of FilterBase instances that will be applied in sequence.
+        """
         self.logger = Logger()
         self.filters = filters
 
     def apply_filters(self, context: Context) -> FilterResultModel:
-        """Apply filters using the context and return a FilterResultModel with combined scores."""
+        """
+        Apply a sequence of filters to the given context and return a FilterResultModel with combined scores.
+
+        This method applies each filter in the list sequentially to the products in the context, 
+        collects and combines their scores, and returns a sorted list of recommendations based on 
+        the combined scores.
+
+        Args:
+            context (Context): The context containing information such as user ID, product list, and 
+                               any other relevant data for filtering.
+
+        Returns:
+            FilterResultModel: A result model containing the user ID and a sorted list of 
+                               recommended products with their combined similarity scores.
+        """
         self.logger.info("Applying filters in sequence.")
         filtered_products = context.products
         product_scores: Dict[str, List[float]] = {}
 
-        with SessionLocal() as session: 
+        with SessionLocal() as session:
             product_repo = ProductRepository(session)
             
             for filter in self.filters:
-                self.logger.info(f"Applying filter: {filter.__class__.__name__}")            
+                self.logger.info(f"Applying filter: {filter.__class__.__name__}")
                 context.products = filtered_products
                 
                 # Apply the filter
@@ -31,7 +51,8 @@ class FilterPipe:
                 # Check if the filter result is valid
                 if not filter_result or not filter_result.recommendations:
                     self.logger.warn(f"No recommendations from filter: {filter.__class__.__name__}")
-                    return FilterResultModel(user_id=context.userId, recommendations=[RecommendationModel(x.unique_id,1) for x in filtered_products])
+                    # Return a default set of recommendations if no results are obtained
+                    return FilterResultModel(user_id=context.userId, recommendations=[RecommendationModel(x.unique_id, 1) for x in filtered_products])
 
                 # Update the scores for the filtered products
                 for rec in filter_result.recommendations:
