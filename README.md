@@ -51,6 +51,7 @@ Define los modelos utilizados en el sistema:
 ### Main
 
 - **FilterPipe**: Coordina la aplicación de filtros en secuencia, combina los resultados y calcula scores combinados para cada producto. Devuelve los resultados finales ordenados por score.
+- 
 
 ## Uso
 
@@ -68,7 +69,7 @@ Define los modelos utilizados en el sistema:
    docker-compose up
    ```
 
-3. **Ejecución**: Una vez que la infraestructura esté en funcionamiento, puedes iniciar la aplicación y comenzar a aplicar filtros y generar recomendaciones utilizando las interfaces proporcionadas.
+3. **Ejecución**: Una vez que la infraestructura esté en funcionamiento, puedes iniciar la aplicación y comenzar a aplicar filtros y generar recomendaciones utilizando las interfaces proporcionadas. Solicite recomendaciones para un usuario específico. Revise y ajuste las recomendaciones según sea necesario.
 
 ### Ejemplos de Uso
 
