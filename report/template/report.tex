@@ -60,7 +60,16 @@ El sistema híbrido propuesto ofrece varias ventajas en comparación con los enf
 \end{itemize}
 
 \section{Estructura del Proyecto}
-El sistema está organizado en módulos clave, cada uno responsable de un aspecto específico del proceso de recomendación.
+El sistema está organizado en módulos clave, cada uno responsable de un aspecto específico del proceso de recomendación; pero antes de desglozar la estructura del proyecto, se explicará cómo está conformado el conjunto de datos (\textit{dataset}) que se utilizó.\\
+
+\subsection{Conjunto de datos (\textit{dataset})}
+
+\subsubsection{Fuente\\}
+El conjunto de datos fue extraído del sitio web de \textit{kaggle}[\textbf{2}].
+
+\subsubsection{Estructura\\}
+El conjunto de datos consta de tres (3) archivos Excel: \textit{customer details} (detalles de los clientes), \textit{product details} (detalles de los productos) e \textit{interactions details} (detalles de las interacciones). Cada fila de cada archivo representa un elemento del conjunto de datos de interés (un cliente en el caso del primer archivo, un producto en el caso del segundo, y, en el caso del tercero, una interacción entre un cliente y un producto).\\
+El archivo que contiene los detalles de los clientes, cada columna representa una característica relevante de los clientes (valga la redundancia), por ejemplo: identificador, edad, sexo, producto que compró así como detalles de dicho producto (nombre del artículo, categoría, etc.), tipo de pago, frecuencia con la que compra, temporada de compra, etc.. En en caso del archivo que contiene los detalles de los productos, cada columna representa, de igual modo, una característica a tener en cuenta de cada uno, por ejemplo: identificador único, nombre, categoría, número del modelo, foto, descripción, precio de venta, enlace del producto, etc.. Finalmente, el archivo que contiene las interacciones entre cliente y producto posee en cad columna información relevante sobre cada interacción, como son: identificador del cliente, identificador del producto, tipo de interacción (el cliente 'miró' el producto, indicó que 'le gusta' o lo 'compró'), fecha de la interacción, etc.
 
 \subsection{Filtros (Filters)}
 Este módulo implementa las estrategias de recomendación. Se incluyen los siguientes filtros:
@@ -98,7 +107,7 @@ Proporciona servicios adicionales que soportan la funcionalidad del sistema, com
 \section{Métricas}
 
 \section{Conclusión}
-El sistema de recomendación híbrido presentado combina las fortalezas del filtrado colaborativo y basado en contenido, ofreciendo un enfoque robusto para la personalización de contenido en plataformas digitales. La integración de estos métodos permite superar las limitaciones individuales y proporcionar recomendaciones más precisas y relevantes, mejorando la experiencia del usuario. La evaluación del sistema demuestra su eficacia en diferentes escenarios y su capacidad para manejar el problema del "cold start".
+El sistema de recomendación híbrido presentado combina las fortalezas del filtrado colaborativo y basado en contenido, ofreciendo un enfoque robusto para la personalización de contenido en plataformas digitales. La integración de estos métodos permite superar las limitaciones individuales y proporcionar recomendaciones más precisas y relevantes, mejorando la experiencia del usuario. La evaluación del sistema demuestra su eficacia en diferentes escenarios y su capacidad para manejar el problema del \textit{comienzo frío} (\textit{cold start}).
 
 \section{Referencias}
 \begin{thebibliography}{99}
